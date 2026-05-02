@@ -5,8 +5,18 @@ import type { BitWidth } from "@/lib/alu/types";
 import { ConfigBar } from "./ConfigBar";
 import { ModePractice } from "./ModePractice";
 import { ModeVerify } from "./ModeVerify";
+import { ThemeToggle } from "./ThemeToggle";
 
 type Screen = "home" | "practice" | "verify";
+
+function TopBar({ n, onChangeN }: { n: BitWidth; onChangeN: (n: BitWidth) => void }) {
+  return (
+    <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 pt-4">
+      <ConfigBar n={n} onChangeN={onChangeN} />
+      <ThemeToggle />
+    </div>
+  );
+}
 
 export default function AluSimulator() {
   const [screen, setScreen] = useState<Screen>("home");
@@ -15,7 +25,7 @@ export default function AluSimulator() {
   if (screen === "practice") {
     return (
       <>
-        <ConfigBar n={n} onChangeN={setN} />
+        <TopBar n={n} onChangeN={setN} />
         <ModePractice key={n} n={n} onBack={() => setScreen("home")} />
       </>
     );
@@ -24,7 +34,7 @@ export default function AluSimulator() {
   if (screen === "verify") {
     return (
       <>
-        <ConfigBar n={n} onChangeN={setN} />
+        <TopBar n={n} onChangeN={setN} />
         <ModeVerify key={n} n={n} onBack={() => setScreen("home")} />
       </>
     );
@@ -46,7 +56,10 @@ export default function AluSimulator() {
         </p>
       </header>
 
-      <ConfigBar n={n} onChangeN={setN} />
+      <div className="flex items-center justify-between gap-4">
+        <ConfigBar n={n} onChangeN={setN} />
+        <ThemeToggle />
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <button
