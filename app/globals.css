@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
+/* Forzar modo oscuro basado en clase en lugar de prefers-color-scheme */
+@variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #fafafa;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --foreground: #ededed;
   --accent-valid-bg: #ecfdf5;
   --accent-valid-fg: #065f46;
   --accent-invalid-bg: #fff1f2;

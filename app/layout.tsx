@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${geistMono.variable} h-full antialiased`}>
+    <html lang="es" className={`${geistMono.variable} dark h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-[var(--background)] font-sans text-[var(--foreground)]">
         {children}
         <footer className="mt-auto border-t border-zinc-200 py-4 dark:border-zinc-800">
