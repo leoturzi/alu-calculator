@@ -39,7 +39,7 @@ export function InterpretationSection({ value, onChange, validation }: Props) {
       />
       <InterpRow
         label="ℤ"
-        sublabel="complemento a 2"
+        sublabel="enteros"
         valid={value.sigValid}
         flag={value.sigFlag}
         validValidation={validation?.sigValid ?? null}
