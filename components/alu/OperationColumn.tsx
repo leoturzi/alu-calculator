@@ -51,7 +51,7 @@ export function OperationColumn({
   return (
     <div className="flex flex-col gap-2">
       <div className={columnTitleClass}>Original</div>
-      <div className={`ml-auto border-l border-zinc-300 pl-3 dark:border-zinc-600 ${operationGridClass}`}>
+      <div className={`border-l border-zinc-300 pl-3 dark:border-zinc-600 ${operationGridClass}`}>
 
         {/* A */}
         <span className="pointer-events-none select-none opacity-0">.</span>

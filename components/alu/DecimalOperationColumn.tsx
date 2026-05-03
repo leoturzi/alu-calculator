@@ -47,7 +47,7 @@ export function DecimalOperationColumn({
     <div className="flex flex-col gap-2">
       <div className={columnTitleClass}>{title}</div>
       <div
-        className={`ml-auto border-l border-zinc-300 pl-3 dark:border-zinc-600 ${operationGridClass}`}
+        className={`border-l border-zinc-300 pl-3 dark:border-zinc-600 ${operationGridClass}`}
       >
         <span className="pointer-events-none select-none opacity-0">.</span>
         <DecimalInput
@@ -105,7 +105,7 @@ function DecimalInput({
 
   return (
     <div
-      className={`flex justify-end ${ringClass} ${
+      className={`${ringClass} ${
         resultRow ? "border-t border-zinc-700 pt-1 dark:border-zinc-300" : ""
       }`}
     >
