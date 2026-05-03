@@ -37,7 +37,7 @@ export function DecimalOperationColumn({
   bInput,
   resultInput,
 }: Props) {
-  const title = variant === "natural" ? "ℕ natural" : "ℤ con signo";
+  const title = variant === "natural" ? "ℕ natural" : "ℤ enteros";
   const opChar = operation === "add" ? "+" : "−";
   const signed = variant === "twos";
   const inputWidth = maxDecimalChars(n, signed);

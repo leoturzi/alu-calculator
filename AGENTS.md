@@ -1,3 +1,10 @@
+<!-- BEGIN:project-rules -->
+# Project rules
+
+## Git workflow
+- **Never run `git push` without explicit user approval.** Commit changes when asked, but always stop after the commit and ask before pushing.
+<!-- END:project-rules -->
+
 <!-- BEGIN:nextjs-agent-rules -->
 # This is NOT the Next.js you know
 

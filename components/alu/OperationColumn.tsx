@@ -41,7 +41,6 @@ export function OperationColumn({
   const n = Math.max(aInput.value.length || 4, 4);
   const baseId = useId();
 
-  const hasValidation = resultInput.validation !== undefined && resultInput.validation !== null;
   const resultRingClass = resultInput.validation === true
     ? "ring-1 ring-emerald-400 rounded"
     : resultInput.validation === false
