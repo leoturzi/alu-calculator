@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ALU Calculator (Simulador ALU)
 
-## Getting Started
+Interactive web app for learning how **n-bit addition and subtraction** work the way an arithmetic unit does: binary operands, ripple carry, status flags, and how results read in **unsigned (ℕ)** vs **two’s-complement (ℤ)** interpretation.
 
-First, run the development server:
+The **UI is in Spanish** (labels such as *Operación*, *Banderas*, *Comparación*, *Interpretación*). Core logic lives in `lib/alu/` and is covered by unit tests.
+
+## What you can do
+
+- Choose **bit width** `4`, `8`, `16`, or `32` and operation **add** or **sub** (subtraction as *A + ¬B + 1* with per-column visualization where relevant).
+- Enter operands as binary strings and fill in:
+  - Result (and negated *B* for subtraction when applicable)
+  - Decimal views as natural numbers and as signed values
+  - **Flags** Z (zero), N (negative / sign), C (carry), V (overflow)
+  - **Unsigned vs signed** comparisons (greater / equal / less)
+  - **Interpretation**: whether the bit pattern is “valid” in ℕ vs ℤ and which flag backs that (e.g. carry vs overflow)
+- **Práctica**: generate random operands for drill.
+- **Calcular**: reveal the correct answers from the engine (does not replace your own practice unless you use it as a check).
+- **Validar**: compare your entries to the derived ALU state and highlight mistakes.
+
+## Tech stack
+
+- [Next.js](https://nextjs.org) (App Router), React 19, TypeScript
+- [Tailwind CSS](https://tailwindcss.com) v4
+- [Vitest](https://vitest.dev) for tests
+- [Geist Mono](https://vercel.com/font) for numeric/binary display
+
+## Scripts
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev    # http://localhost:3000
+npm run build
+npm run lint
+npm test       # vitest run
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Layout
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Path | Role |
+|------|------|
+| `app/` | Next.js routes, layout, global styles |
+| `components/alu/` | Calculator UI (toolbar, workbench, flags, comparison, interpretation) |
+| `lib/alu/` | Binary helpers, ripple add/subtract, flags, comparison, validation, practice helpers |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Learn more about Next.js
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This repo started from `create-next-app`. For framework docs and deployment, see [Next.js documentation](https://nextjs.org/docs).

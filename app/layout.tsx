@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Image from "next/image";
 import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -14,7 +15,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Simulador ALU",
+  title: "Calculadora UAL",
   description:
     "Suma y resta en n bits con vistas binarias y decimales (ℕ y complemento a 2).",
 };
@@ -27,6 +28,21 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${geistMono.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-[var(--background)] font-sans text-[var(--foreground)]">
+        <header className="border-b border-zinc-200 dark:border-zinc-800">
+          <div className="mx-auto flex max-w-5xl items-center justify-center gap-3 px-4 py-4 md:justify-start">
+            <Image
+              src="/image.png"
+              alt=""
+              width={48}
+              height={48}
+              className="size-12 shrink-0"
+              priority
+            />
+            <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+              Calculadora UAL
+            </h1>
+          </div>
+        </header>
         {children}
         <footer className="mt-auto border-t border-zinc-200 py-4 dark:border-zinc-800">
           <div className="mx-auto flex max-w-5xl items-center justify-center gap-2 px-4 text-xs text-zinc-500 dark:text-zinc-500">
