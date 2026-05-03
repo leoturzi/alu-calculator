@@ -79,6 +79,7 @@ export function OperationWorkbench({
       {/* Naturales decimal column */}
       <div className="shrink-0">
         <DecimalOperationColumn
+          n={n}
           variant="natural"
           operation={operation}
           aInput={natAInput}
@@ -90,6 +91,7 @@ export function OperationWorkbench({
       {/* Enteros decimal column */}
       <div className="shrink-0">
         <DecimalOperationColumn
+          n={n}
           variant="twos"
           operation={operation}
           aInput={sigAInput}

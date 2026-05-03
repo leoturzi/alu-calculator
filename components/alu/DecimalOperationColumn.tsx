@@ -1,35 +1,36 @@
 "use client";
 
 import { useId } from "react";
-import type { Operation } from "@/lib/alu/types";
+import type { BitWidth, Operation } from "@/lib/alu/types";
 import { columnTitleClass, operationGridClass } from "./operationGridClasses";
 
 export type DecimalVariant = "natural" | "twos";
 
-type DecimalInput = {
+type DecimalInputField = {
   value: string;
   onChange: (v: string) => void;
   validation?: boolean | null;
 };
 
 type Props = {
+  n: BitWidth;
   variant: DecimalVariant;
   operation: Operation;
-  aInput: DecimalInput;
-  bInput: DecimalInput;
-  resultInput: DecimalInput;
+  aInput: DecimalInputField;
+  bInput: DecimalInputField;
+  resultInput: DecimalInputField;
 };
 
-function sanitizeDecimal(raw: string, signed: boolean): string {
-  if (signed) {
-    // allow optional leading minus, then digits
-    return raw.replace(/[^-\d]/g, "").replace(/(?!^)-/g, "");
-  }
-  return raw.replace(/\D/g, "");
+/** Max characters needed to represent any value for this variant + bit width. */
+function maxDecimalChars(n: number, signed: boolean): number {
+  // Natural: 0 .. 2^n-1  →  floor(n * log10(2)) + 1 digits
+  // Signed:  -(2^(n-1)) .. 2^(n-1)-1  →  same digits + 1 for minus sign
+  const digits = Math.floor(n * Math.log10(2)) + 1;
+  return signed ? digits + 1 : digits;
 }
 
-/** Columna decimal paralela al binario (ℕ o ℤ) */
 export function DecimalOperationColumn({
+  n,
   variant,
   operation,
   aInput,
@@ -39,6 +40,7 @@ export function DecimalOperationColumn({
   const title = variant === "natural" ? "ℕ natural" : "ℤ con signo";
   const opChar = operation === "add" ? "+" : "−";
   const signed = variant === "twos";
+  const inputWidth = maxDecimalChars(n, signed);
   const baseId = useId();
 
   return (
@@ -52,6 +54,7 @@ export function DecimalOperationColumn({
           id={`${baseId}-a`}
           label={`A en ${title}`}
           signed={signed}
+          width={inputWidth}
           field={aInput}
         />
 
@@ -60,6 +63,7 @@ export function DecimalOperationColumn({
           id={`${baseId}-b`}
           label={`B en ${title}`}
           signed={signed}
+          width={inputWidth}
           field={bInput}
         />
 
@@ -68,6 +72,7 @@ export function DecimalOperationColumn({
           id={`${baseId}-result`}
           label={`Resultado en ${title}`}
           signed={signed}
+          width={inputWidth}
           field={resultInput}
           resultRow
         />
@@ -80,24 +85,30 @@ function DecimalInput({
   id,
   label,
   signed,
+  width,
   field,
   resultRow,
 }: {
   id: string;
   label: string;
   signed: boolean;
-  field: DecimalInput;
+  width: number;
+  field: DecimalInputField;
   resultRow?: boolean;
 }) {
   const ringClass =
     field.validation === true
-      ? "ring-1 ring-emerald-400 rounded"
+      ? "ring-1 ring-emerald-400 rounded-sm"
       : field.validation === false
-        ? "ring-1 ring-rose-400 rounded"
+        ? "ring-1 ring-rose-400 rounded-sm"
         : "";
 
   return (
-    <div className={`w-fit ml-auto ${ringClass} ${resultRow ? "border-t border-zinc-700 pt-1 dark:border-zinc-300" : ""}`}>
+    <div
+      className={`flex justify-end ${ringClass} ${
+        resultRow ? "border-t border-zinc-700 pt-1 dark:border-zinc-300" : ""
+      }`}
+    >
       <label htmlFor={id} className="sr-only">
         {label}
       </label>
@@ -116,7 +127,8 @@ function DecimalInput({
               : e.target.value.replace(/\D/g, ""),
           )
         }
-        className="min-w-[2ch] bg-transparent py-0 text-right font-mono text-sm tracking-normal tabular-nums text-zinc-900 outline-none ring-0 placeholder:text-zinc-400 focus-visible:underline dark:text-zinc-100 dark:placeholder:text-zinc-600"
+        style={{ width: `${width}ch` }}
+        className="bg-transparent py-0 text-right font-mono text-sm tracking-normal tabular-nums text-zinc-900 outline-none ring-0 placeholder:text-zinc-400 focus-visible:underline dark:text-zinc-100 dark:placeholder:text-zinc-600"
       />
     </div>
   );
