@@ -20,14 +20,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`${geistMono.variable} h-full antialiased`} suppressHydrationWarning>
-      {/* Inline script: aplica la clase dark ANTES del primer render para evitar flash */}
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&true))document.documentElement.classList.add('dark');else document.documentElement.classList.remove('dark')}catch(e){}})()`,
-          }}
-        />
-      </head>
       <body className="min-h-full flex flex-col bg-[var(--background)] font-sans text-[var(--foreground)]">
         {children}
         <footer className="mt-auto border-t border-zinc-200 py-4 dark:border-zinc-800">
