@@ -97,7 +97,7 @@ function DecimalInput({
         : "";
 
   return (
-    <div className={`min-w-0 text-right ${ringClass} ${resultRow ? "border-t border-zinc-700 pt-1 dark:border-zinc-300" : ""}`}>
+    <div className={`w-fit ml-auto ${ringClass} ${resultRow ? "border-t border-zinc-700 pt-1 dark:border-zinc-300" : ""}`}>
       <label htmlFor={id} className="sr-only">
         {label}
       </label>
@@ -116,7 +116,7 @@ function DecimalInput({
               : e.target.value.replace(/\D/g, ""),
           )
         }
-        className="block min-w-[2ch] bg-transparent py-0 text-right font-mono text-sm tabular-nums text-zinc-900 outline-none ring-0 placeholder:text-zinc-400 focus-visible:underline dark:text-zinc-100 dark:placeholder:text-zinc-600"
+        className="min-w-[2ch] bg-transparent py-0 text-right font-mono text-sm tracking-normal tabular-nums text-zinc-900 outline-none ring-0 placeholder:text-zinc-400 focus-visible:underline dark:text-zinc-100 dark:placeholder:text-zinc-600"
       />
     </div>
   );
