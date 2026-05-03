@@ -31,7 +31,6 @@ export function FlagsRow({ flags, onChange, validation }: Props) {
       {keys.map((k) => (
         <FlagItem
           key={k}
-          flagKey={k}
           displayLabel={FLAG_DISPLAY[k]}
           value={flags[k]}
           hint={FLAG_HINTS[k]}
@@ -45,7 +44,6 @@ export function FlagsRow({ flags, onChange, validation }: Props) {
 }
 
 function FlagItem({
-  flagKey,
   displayLabel,
   value,
   hint,
@@ -53,7 +51,6 @@ function FlagItem({
   validationState,
   onChange,
 }: {
-  flagKey: keyof FlagSet;
   displayLabel: string;
   value: boolean;
   hint: string;
