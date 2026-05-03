@@ -12,15 +12,7 @@ export function compareBlock(
   const sa = toSignedValue(aBits, n);
   const sb = toSignedValue(bBits, n);
   return {
-    unsigned: {
-      eq: ua === ub,
-      gt: ua > ub,
-      lt: ua < ub,
-    },
-    signed: {
-      eq: sa === sb,
-      gt: sa > sb,
-      lt: sa < sb,
-    },
+    unsigned: ua > ub ? "gt" : ua < ub ? "lt" : "eq",
+    signed: sa > sb ? "gt" : sa < sb ? "lt" : "eq",
   };
 }

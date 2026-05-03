@@ -1,126 +1,114 @@
 "use client";
 
 import { useId } from "react";
-import type { BitWidth, Operation } from "@/lib/alu/types";
-import { BitsRow } from "./BinaryBitsRow";
+import type { Operation } from "@/lib/alu/types";
 import { columnTitleClass, operationGridClass } from "./operationGridClasses";
 
-/** Entrada de A/B en la misma rejilla que la cuenta (solo modo comprobación) */
-export type OperandInputsConfig = {
-  n: BitWidth;
-  a: string;
-  b: string;
-  onChangeA: (value: string) => void;
-  onChangeB: (value: string) => void;
+type InputConfig = {
+  value: string;
+  onChange: (v: string) => void;
+};
+
+type ResultInputConfig = InputConfig & {
+  validation?: boolean | null;
 };
 
 type Props = {
   operation: Operation;
-  /** MSB-first bit strings (length n), ya normalizados para lectura/decimales */
-  aBits: string;
-  bBits: string;
-  /** Result bits when known */
-  resultBits: string | null;
-  /** Cout del sumador (para bit extra MSB en la línea del resultado + flag C en ADD) */
+  aInput: InputConfig;
+  bInput: InputConfig;
+  resultInput: ResultInputConfig;
   carryOut?: boolean | null;
-  operandInputs?: OperandInputsConfig;
 };
 
 function sanitizeBinary(raw: string, maxLen: number): string {
   return raw.replace(/[^01]/g, "").slice(0, maxLen);
 }
 
-/** Primera columna binaria: operación “directa” A ± B = R */
+// tracking-normal overrides the inherited tracking-wide from the grid so that
+// n characters fit exactly inside width:nch without letter-spacing overflow.
+const bitsInputClass =
+  "block bg-transparent py-0 text-right font-mono text-sm tracking-normal tabular-nums text-zinc-900 outline-none ring-0 placeholder:text-zinc-400 focus-visible:underline dark:text-zinc-100 dark:placeholder:text-zinc-600";
+
 export function OperationColumn({
   operation,
-  aBits,
-  bBits,
-  resultBits,
+  aInput,
+  bInput,
+  resultInput,
   carryOut,
-  operandInputs,
 }: Props) {
   const opChar = operation === "add" ? "+" : "−";
-  const rowResult = resultBits ?? "—".repeat(aBits.length);
+  const n = Math.max(aInput.value.length || 4, 4);
   const baseId = useId();
+
+  const hasValidation = resultInput.validation !== undefined && resultInput.validation !== null;
+  const resultRingClass = resultInput.validation === true
+    ? "ring-1 ring-emerald-400 rounded"
+    : resultInput.validation === false
+      ? "ring-1 ring-rose-400 rounded"
+      : "";
 
   return (
     <div className="flex flex-col gap-2">
-      <div className={columnTitleClass}>Binario</div>
+      <div className={columnTitleClass}>Original</div>
       <div className={`border-l border-zinc-300 pl-3 dark:border-zinc-600 ${operationGridClass}`}>
+
+        {/* A */}
         <span className="pointer-events-none select-none opacity-0">.</span>
-        {operandInputs ? (
-          <OperandBitInput
+        <div className="min-w-0 flex justify-end">
+          <label htmlFor={`${baseId}-a`} className="sr-only">Operando A</label>
+          <input
             id={`${baseId}-a`}
-            label={`Operando A (${operandInputs.n} bits, MSB a la izquierda)`}
-            value={operandInputs.a}
-            maxLen={operandInputs.n}
-            onChange={(v) =>
-              operandInputs.onChangeA(sanitizeBinary(v, operandInputs.n))
-            }
+            type="text" inputMode="numeric" pattern="[01]*"
+            autoComplete="off" spellCheck={false}
+            maxLength={n} placeholder={"0".repeat(n)} aria-label="Operando A"
+            value={aInput.value}
+            onChange={(e) => aInput.onChange(sanitizeBinary(e.target.value, n))}
+            style={{ width: `${n}ch` }}
+            className={bitsInputClass}
           />
-        ) : (
-          <BitsRow bits={aBits} />
-        )}
+        </div>
 
+        {/* B */}
         <span className="flex items-end justify-center pb-px">{opChar}</span>
-        {operandInputs ? (
-          <OperandBitInput
+        <div className="min-w-0 flex justify-end">
+          <label htmlFor={`${baseId}-b`} className="sr-only">Operando B</label>
+          <input
             id={`${baseId}-b`}
-            label={`Operando B (${operandInputs.n} bits)`}
-            value={operandInputs.b}
-            maxLen={operandInputs.n}
-            onChange={(v) =>
-              operandInputs.onChangeB(sanitizeBinary(v, operandInputs.n))
-            }
+            type="text" inputMode="numeric" pattern="[01]*"
+            autoComplete="off" spellCheck={false}
+            maxLength={n} placeholder={"0".repeat(n)} aria-label="Operando B"
+            value={bInput.value}
+            onChange={(e) => bInput.onChange(sanitizeBinary(e.target.value, n))}
+            style={{ width: `${n}ch` }}
+            className={bitsInputClass}
           />
-        ) : (
-          <BitsRow bits={bBits} />
-        )}
+        </div>
 
+        {/* Result */}
         <span className="pointer-events-none select-none opacity-0">.</span>
-        <BitsRow
-          bits={rowResult}
-          muted={resultBits === null}
-          resultRow
-          prependRippleCarry={carryOut}
-        />
-      </div>
-    </div>
-  );
-}
+        <div className={`min-w-0 flex justify-end border-t border-zinc-700 pt-1 dark:border-zinc-300 ${resultRingClass}`}>
+          <div className="inline-flex items-baseline">
+            {carryOut === true && (
+              <span className="font-mono text-sm tracking-normal font-semibold text-red-500 dark:text-red-400">
+                1
+              </span>
+            )}
+            <label htmlFor={`${baseId}-result`} className="sr-only">Resultado</label>
+            <input
+              id={`${baseId}-result`}
+              type="text" inputMode="numeric" pattern="[01]*"
+              autoComplete="off" spellCheck={false}
+              maxLength={n} placeholder={"0".repeat(n)} aria-label="Resultado"
+              value={resultInput.value}
+              onChange={(e) => resultInput.onChange(sanitizeBinary(e.target.value, n))}
+              style={{ width: `${n}ch` }}
+              className={bitsInputClass}
+            />
+          </div>
+        </div>
 
-function OperandBitInput({
-  id,
-  label,
-  value,
-  maxLen,
-  onChange,
-}: {
-  id: string;
-  label: string;
-  value: string;
-  maxLen: number;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <div className="min-w-0 text-right">
-      <label htmlFor={id} className="sr-only">
-        {label}
-      </label>
-      <input
-        id={id}
-        type="text"
-        inputMode="numeric"
-        pattern="[01]*"
-        autoComplete="off"
-        spellCheck={false}
-        maxLength={maxLen}
-        placeholder={"0".repeat(maxLen)}
-        aria-label={label}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="-mx-1 block min-w-[8ch] bg-transparent px-1 py-0 text-right font-mono text-sm tabular-nums text-zinc-900 outline-none ring-0 placeholder:text-zinc-400 focus-visible:underline dark:text-zinc-100 dark:placeholder:text-zinc-600"
-      />
+      </div>
     </div>
   );
 }

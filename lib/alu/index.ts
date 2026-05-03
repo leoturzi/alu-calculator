@@ -2,7 +2,9 @@ export type {
   Operation,
   BitWidth,
   FlagSet,
+  CmpSymbol,
   ComparisonBlock,
+  InterpretationAnswer,
   WorkbenchSnapshot,
 } from "./types";
 export { BIT_WIDTH_OPTIONS } from "./constants";
@@ -32,8 +34,7 @@ export {
   naturalOperationValid,
   signedOperationValid,
   deriveAluState,
-  validatePractice,
+  validateAnswers,
   type DerivedAluState,
-  type PracticeAnswers,
-  type FieldResult,
+  type UserAnswers,
 } from "./validation";

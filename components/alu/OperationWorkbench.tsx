@@ -1,23 +1,34 @@
 "use client";
 
-import type { BitWidth, Operation, WorkbenchSnapshot } from "@/lib/alu/types";
-import { negateTwosComplement } from "@/lib/alu/arithmetic";
-import { toNaturalValue, toSignedValue } from "@/lib/alu/binary";
-import {
-  OperationColumn,
-  type OperandInputsConfig,
-} from "./OperationColumn";
+import type { BitWidth, Operation } from "@/lib/alu/types";
+import type { DerivedAluState } from "@/lib/alu/validation";
+import { OperationColumn } from "./OperationColumn";
 import { SubtractionAddColumn } from "./SubtractionAddColumn";
 import { DecimalOperationColumn } from "./DecimalOperationColumn";
+
+type EditableField = {
+  value: string;
+  onChange: (v: string) => void;
+  validation?: boolean | null;
+};
 
 type Props = {
   n: BitWidth;
   operation: Operation;
   aBits: string;
   bBits: string;
-  snapshot: WorkbenchSnapshot | null;
-  /** Si se define, A y B se editan en la columna binaria (modo comprobación) */
-  operandInputs?: OperandInputsConfig;
+  onChangeA: (v: string) => void;
+  onChangeB: (v: string) => void;
+  resultInput: EditableField;
+  negBInput: EditableField;
+  natAInput: EditableField;
+  natBInput: EditableField;
+  natResultInput: EditableField;
+  sigAInput: EditableField;
+  sigBInput: EditableField;
+  sigResultInput: EditableField;
+  /** Revealed computed state — drives carry display */
+  computed: DerivedAluState | null;
 };
 
 export function OperationWorkbench({
@@ -25,58 +36,65 @@ export function OperationWorkbench({
   operation,
   aBits,
   bBits,
-  snapshot,
-  operandInputs,
+  onChangeA,
+  onChangeB,
+  resultInput,
+  negBInput,
+  natAInput,
+  natBInput,
+  natResultInput,
+  sigAInput,
+  sigBInput,
+  sigResultInput,
+  computed,
 }: Props) {
-  const resultBits = snapshot?.resultBits ?? null;
-  const carryOut = snapshot?.carryOut ?? null;
-
-  const negBTwosBits =
-    operation === "sub" ? negateTwosComplement(bBits, n) : null;
-
-  const natResult =
-    resultBits !== null ? toNaturalValue(resultBits) : null;
-  const sigResult =
-    resultBits !== null ? toSignedValue(resultBits, n) : null;
+  const carryOut = computed?.snapshot.carryOut ?? null;
 
   return (
     <div className="-mx-1 flex flex-nowrap items-start gap-x-10 overflow-x-auto px-1 pb-2 [-webkit-overflow-scrolling:touch] md:gap-x-12 lg:gap-x-14">
+      {/* Original binary column */}
       <div className="shrink-0">
         <OperationColumn
           operation={operation}
-          aBits={aBits}
-          bBits={bBits}
-          resultBits={resultBits}
+          aInput={{ value: aBits, onChange: onChangeA }}
+          bInput={{ value: bBits, onChange: onChangeB }}
+          resultInput={resultInput}
           carryOut={carryOut}
-          operandInputs={operandInputs}
         />
       </div>
-      {operation === "sub" && negBTwosBits && (
+
+      {/* Suma Complemento (subtraction as addition) */}
+      {operation === "sub" && (
         <div className="shrink-0">
           <SubtractionAddColumn
-            aBits={aBits}
-            negBTwosBits={negBTwosBits}
-            resultBits={resultBits}
+            n={n}
+            aInput={{ value: aBits, onChange: onChangeA }}
+            negBInput={negBInput}
+            resultInput={resultInput}
             carryOut={carryOut}
           />
         </div>
       )}
+
+      {/* Naturales decimal column */}
       <div className="shrink-0">
         <DecimalOperationColumn
           variant="natural"
           operation={operation}
-          a={toNaturalValue(aBits)}
-          b={toNaturalValue(bBits)}
-          result={natResult}
+          aInput={natAInput}
+          bInput={natBInput}
+          resultInput={natResultInput}
         />
       </div>
+
+      {/* Enteros decimal column */}
       <div className="shrink-0">
         <DecimalOperationColumn
           variant="twos"
           operation={operation}
-          a={toSignedValue(aBits, n)}
-          b={toSignedValue(bBits, n)}
-          result={sigResult}
+          aInput={sigAInput}
+          bInput={sigBInput}
+          resultInput={sigResultInput}
         />
       </div>
     </div>

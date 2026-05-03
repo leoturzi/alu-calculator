@@ -1,9 +1,9 @@
-import AluSimulator from "@/components/alu/AluSimulator";
+import AluCalculator from "@/components/alu/AluCalculator";
 
 export default function Home() {
   return (
     <main className="flex flex-1 flex-col">
-      <AluSimulator />
+      <AluCalculator />
     </main>
   );
 }

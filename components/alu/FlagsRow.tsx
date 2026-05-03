@@ -2,60 +2,78 @@
 
 import type { FlagSet } from "@/lib/alu/types";
 
+/** Display labels: N is shown as S (signo) */
+const FLAG_DISPLAY: Record<keyof FlagSet, string> = {
+  C: "C",
+  V: "V",
+  N: "S",
+  Z: "Z",
+};
+
 const FLAG_HINTS: Record<keyof FlagSet, string> = {
   Z: "Zero — vale 1 cuando todos los bits del resultado son 0.",
-  N: "Negative — vale 1 cuando el MSB del resultado es 1 (negativo en C2).",
-  C: "Carry — igual al cout del sumador; es el bit extra que aparece a la izquierda del resultado binario.",
-  V: "oVerflow — vale 1 cuando hay desbordamiento en complemento a 2: el resultado no cabe en el rango con signo de n bits.",
+  N: "Signo — vale 1 cuando el MSB del resultado es 1 (negativo en C2).",
+  C: "Carry — igual al cout del sumador; es el bit extra a la izquierda del resultado.",
+  V: "oVerflow — vale 1 cuando hay desbordamiento en complemento a 2.",
 };
 
 type Props = {
   flags: FlagSet;
-  readOnly: boolean;
   onChange?: (next: FlagSet) => void;
+  validation?: Partial<Record<keyof FlagSet, boolean>> | null;
 };
 
-export function FlagsRow({ flags, readOnly, onChange }: Props) {
-  const keys = Object.keys(FLAG_HINTS) as (keyof FlagSet)[];
+export function FlagsRow({ flags, onChange, validation }: Props) {
+  const keys: (keyof FlagSet)[] = ["C", "V", "N", "Z"];
 
   return (
-    <div className="rounded-lg border border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-700 dark:bg-zinc-900/40">
-      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-        Banderas (flags)
-      </h3>
-      <div className="flex flex-wrap gap-x-8 gap-y-2">
-        {keys.map((k) => (
-          <FlagItem
-            key={k}
-            flagKey={k}
-            value={flags[k]}
-            hint={FLAG_HINTS[k]}
-            readOnly={readOnly}
-            onChange={(v) => onChange?.({ ...flags, [k]: v })}
-          />
-        ))}
-      </div>
+    <div className="flex flex-wrap gap-x-8 gap-y-2">
+      {keys.map((k) => (
+        <FlagItem
+          key={k}
+          flagKey={k}
+          displayLabel={FLAG_DISPLAY[k]}
+          value={flags[k]}
+          hint={FLAG_HINTS[k]}
+          readOnly={!onChange}
+          validationState={validation?.[k] ?? null}
+          onChange={(v) => onChange?.({ ...flags, [k]: v })}
+        />
+      ))}
     </div>
   );
 }
 
 function FlagItem({
   flagKey,
+  displayLabel,
   value,
   hint,
   readOnly,
+  validationState,
   onChange,
 }: {
   flagKey: keyof FlagSet;
+  displayLabel: string;
   value: boolean;
   hint: string;
   readOnly: boolean;
+  validationState: boolean | null;
   onChange: (v: boolean) => void;
 }) {
+  const ringClass =
+    validationState === true
+      ? "ring-1 ring-emerald-400 rounded"
+      : validationState === false
+        ? "ring-1 ring-rose-400 rounded"
+        : "";
+
   return (
-    <label className={`flex items-center gap-1.5 ${readOnly ? "cursor-default" : "cursor-pointer"}`}>
+    <label
+      className={`flex items-center gap-1.5 ${readOnly ? "cursor-default" : "cursor-pointer"} ${ringClass} px-1`}
+    >
       <span className="font-mono text-sm text-zinc-500 dark:text-zinc-400">
-        {flagKey.toLowerCase()} ={" "}
+        {displayLabel} ={" "}
         <span className="font-semibold text-zinc-900 dark:text-zinc-100">
           {value ? "1" : "0"}
         </span>

@@ -3,22 +3,20 @@ import type {
   FlagSet,
   Operation,
   ComparisonBlock,
+  InterpretationAnswer,
   WorkbenchSnapshot,
 } from "./types";
-import { normalizeBinary } from "./binary";
-import { toNaturalValue } from "./binary";
+import { normalizeBinary, toNaturalValue, toSignedValue } from "./binary";
 import { computeArithmetic } from "./arithmetic";
 import { deriveFlags } from "./flags";
 import { compareBlock } from "./comparison";
 
 /**
- * Validez en ℕ (natural / sin signo), alineada con el uso típico en ALU de n bits:
- *  - ADD: válida si carryOut === 0 (la suma exacta cabe en n bits sin desbordamiento unsigned).
- *  - SUB: válida si el minuendo A ≥ el sustraendo B en ℕ; si A < B hay “underflow”
- *    unsigned (el resultado modular no coincide con la resta exacta en ℕ).
+ * Validez en ℕ (natural / sin signo):
+ *  - ADD: válida si carryOut === 0
+ *  - SUB: válida si A ≥ B como naturales (equivalente a carryOut === 1 en C2)
  *
- * Validez en ℤ (complemento a 2): válida si V === 0 (no hay overflow con signo para
- * esta operación sobre n bits).
+ * Validez en ℤ (complemento a 2): válida si V === 0
  */
 export function naturalOperationValid(
   op: Operation,
@@ -69,68 +67,97 @@ export function deriveAluState(
   };
 }
 
-export type PracticeAnswers = {
+export type UserAnswers = {
   resultBits: string;
+  /** User's two's complement of B (only validated when op === "sub") */
+  negBBits: string;
+  natA: string;
+  natB: string;
+  natResult: string;
+  sigA: string;
+  sigB: string;
+  sigResult: string;
   flags: FlagSet;
-  comparisons: ComparisonBlock;
-  /** Respuesta alumno: ¿la operación es válida interpretando operandos como naturales? */
-  naturalValidGuess: boolean;
-  /** Respuesta alumno: ¿válida en complemento a 2 (sin overflow V)? */
-  signedValidGuess: boolean;
+  cmp: ComparisonBlock;
+  interp: InterpretationAnswer;
 };
 
-export type FieldResult = {
-  field: string;
-  ok: boolean;
-};
-
-export function validatePractice(
+/**
+ * Validates user answers against the computed truth.
+ * Returns a flat Record keyed by field name: true = correct, false = incorrect.
+ *
+ * Keys: "result" | "neg_b" | "nat_result" | "sig_result"
+ *       "C" | "V" | "S" | "Z"
+ *       "cmp_unsigned" | "cmp_signed"
+ *       "nat_valid" | "nat_flag" | "sig_valid" | "sig_flag"
+ *
+ * Justifying flag for ℕ is always C; for ℤ is always V.
+ */
+export function validateAnswers(
   n: BitWidth,
   op: Operation,
   aBits: string,
   bBits: string,
-  answers: PracticeAnswers,
-): { results: FieldResult[]; expected: DerivedAluState } {
+  answers: UserAnswers,
+): Record<string, boolean> {
   const expected = deriveAluState(aBits, bBits, n, op);
+  const expF = expected.flags;
+  const expResultBits = expected.snapshot.resultBits;
+
   let normalizedResult: string;
   try {
     normalizedResult = normalizeBinary(answers.resultBits, n);
   } catch {
     normalizedResult = "";
   }
-  const resultOk =
-    normalizedResult.length === n &&
-    normalizedResult === expected.snapshot.resultBits;
 
-  const f = answers.flags;
-  const expF = expected.flags;
-  const flagsOk =
-    f.Z === expF.Z &&
-    f.N === expF.N &&
-    f.C === expF.C &&
-    f.V === expF.V;
+  let normalizedNegB: string;
+  try {
+    normalizedNegB = normalizeBinary(answers.negBBits, n);
+  } catch {
+    normalizedNegB = "";
+  }
 
-  const cu = answers.comparisons.unsigned;
-  const eu = expected.comparisons.unsigned;
-  const cmpUOk =
-    cu.eq === eu.eq && cu.gt === eu.gt && cu.lt === eu.lt;
+  const expNatA = toNaturalValue(aBits);
+  const expNatB = toNaturalValue(bBits);
+  const expNatResult = toNaturalValue(expResultBits);
+  const expSigA = toSignedValue(aBits, n);
+  const expSigB = toSignedValue(bBits, n);
+  const expSigResult = toSignedValue(expResultBits, n);
 
-  const cs = answers.comparisons.signed;
-  const es = expected.comparisons.signed;
-  const cmpSOk = cs.eq === es.eq && cs.gt === es.gt && cs.lt === es.lt;
+  const pNatA = parseInt(answers.natA, 10);
+  const pNatB = parseInt(answers.natB, 10);
+  const pNatResult = parseInt(answers.natResult, 10);
+  const pSigA = parseInt(answers.sigA, 10);
+  const pSigB = parseInt(answers.sigB, 10);
+  const pSigResult = parseInt(answers.sigResult, 10);
 
-  const natOk =
-    answers.naturalValidGuess === expected.naturalValid;
-  const sigOk = answers.signedValidGuess === expected.signedValid;
+  const result: Record<string, boolean> = {
+    result:
+      normalizedResult.length === n && normalizedResult === expResultBits,
+    nat_a: !isNaN(pNatA) && pNatA === expNatA,
+    nat_b: !isNaN(pNatB) && pNatB === expNatB,
+    nat_result: !isNaN(pNatResult) && pNatResult === expNatResult,
+    sig_a: !isNaN(pSigA) && pSigA === expSigA,
+    sig_b: !isNaN(pSigB) && pSigB === expSigB,
+    sig_result: !isNaN(pSigResult) && pSigResult === expSigResult,
+    C: answers.flags.C === expF.C,
+    V: answers.flags.V === expF.V,
+    S: answers.flags.N === expF.N,
+    Z: answers.flags.Z === expF.Z,
+    cmp_unsigned: answers.cmp.unsigned === expected.comparisons.unsigned,
+    cmp_signed: answers.cmp.signed === expected.comparisons.signed,
+    nat_valid: answers.interp.natValid === expected.naturalValid,
+    nat_flag: answers.interp.natFlag === "C",
+    sig_valid: answers.interp.sigValid === expected.signedValid,
+    sig_flag: answers.interp.sigFlag === "V",
+  };
 
-  const results: FieldResult[] = [
-    { field: "resultado binario", ok: resultOk },
-    { field: "flags (Z,N,C,V)", ok: flagsOk },
-    { field: "comparación como ℕ", ok: cmpUOk },
-    { field: "comparación como ℤ", ok: cmpSOk },
-    { field: "validez ℕ", ok: natOk },
-    { field: "validez ℤ", ok: sigOk },
-  ];
+  if (op === "sub") {
+    result["neg_b"] =
+      normalizedNegB.length === n &&
+      normalizedNegB === expected.snapshot.negBBits;
+  }
 
-  return { results, expected };
+  return result;
 }

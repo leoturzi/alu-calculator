@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${geistMono.variable} h-full antialiased`}>
+    <html lang="es" className={`${geistMono.variable} h-full antialiased`} suppressHydrationWarning>
       {/* Inline script: aplica la clase dark ANTES del primer render para evitar flash */}
       <head>
         <script
