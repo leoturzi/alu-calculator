@@ -105,7 +105,7 @@ function DecimalInput({
 
   return (
     <div
-      className={`${ringClass} ${
+      className={`flex justify-end ${ringClass} ${
         resultRow ? "border-t border-zinc-700 pt-1 dark:border-zinc-300" : ""
       }`}
     >
