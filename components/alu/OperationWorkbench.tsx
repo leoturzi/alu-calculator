@@ -55,6 +55,7 @@ export function OperationWorkbench({
       {/* Original binary column */}
       <div className="shrink-0">
         <OperationColumn
+          n={n}
           operation={operation}
           aInput={{ value: aBits, onChange: onChangeA }}
           bInput={{ value: bBits, onChange: onChangeB }}

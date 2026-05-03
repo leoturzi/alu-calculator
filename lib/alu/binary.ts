@@ -9,6 +9,25 @@ export function normalizeBinary(input: string, n: BitWidth): string {
   return cleaned.padStart(n, "0");
 }
 
+/**
+ * Result row may be exactly n bits, or (n+1): ripple carry-out MSB + n-bit resultado
+ * en la pedagogía del sumador. Devuelve siempre los n bits del resultado.
+ */
+export function normalizeBinaryResultOptionalCarry(
+  input: string,
+  n: BitWidth,
+): string {
+  const cleaned = input.replace(/[^01]/g, "");
+  if (cleaned.length > n + 1) {
+    throw new Error(
+      `Resultado binario demasiado largo: máximo ${n + 1} bits (carry + resultado).`,
+    );
+  }
+  const body =
+    cleaned.length === n + 1 ? cleaned.slice(1) : cleaned;
+  return body.padStart(n, "0");
+}
+
 /** Groups of 4 from the MSB for legibility */
 export function formatBinaryGrouped(bits: string): string {
   const r = bits.length % 4;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useId } from "react";
-import type { Operation } from "@/lib/alu/types";
+import type { BitWidth, Operation } from "@/lib/alu/types";
 import { columnTitleClass, operationGridClass } from "./operationGridClasses";
 
 type InputConfig = {
@@ -14,6 +14,7 @@ type ResultInputConfig = InputConfig & {
 };
 
 type Props = {
+  n: BitWidth;
   operation: Operation;
   aInput: InputConfig;
   bInput: InputConfig;
@@ -31,6 +32,7 @@ const bitsInputClass =
   "block bg-transparent py-0 text-right font-mono text-sm tracking-normal tabular-nums text-zinc-900 outline-none ring-0 placeholder:text-zinc-400 focus-visible:underline dark:text-zinc-100 dark:placeholder:text-zinc-600";
 
 export function OperationColumn({
+  n,
   operation,
   aInput,
   bInput,
@@ -38,7 +40,10 @@ export function OperationColumn({
   carryOut,
 }: Props) {
   const opChar = operation === "add" ? "+" : "−";
-  const n = Math.max(aInput.value.length || 4, 4);
+  const resultSlots = n + 1;
+  const resultCleanLen = resultInput.value.replace(/[^01]/g, "").length;
+  const showPrependedCarry =
+    carryOut === true && resultCleanLen <= n;
   const baseId = useId();
 
   const resultRingClass = resultInput.validation === true
@@ -55,12 +60,14 @@ export function OperationColumn({
         {/* A */}
         <span className="pointer-events-none select-none opacity-0">.</span>
         <div className="min-w-0 flex justify-end">
-          <label htmlFor={`${baseId}-a`} className="sr-only">Operando A</label>
+          <label htmlFor={`${baseId}-a`} className="sr-only">
+            Operando A ({n} bits)
+          </label>
           <input
             id={`${baseId}-a`}
             type="text" inputMode="numeric" pattern="[01]*"
             autoComplete="off" spellCheck={false}
-            maxLength={n} placeholder={"0".repeat(n)} aria-label="Operando A"
+            maxLength={n} placeholder={"0".repeat(n)} aria-label={`Operando A (${n} bits)`}
             value={aInput.value}
             onChange={(e) => aInput.onChange(sanitizeBinary(e.target.value, n))}
             style={{ width: `${n}ch` }}
@@ -71,12 +78,14 @@ export function OperationColumn({
         {/* B */}
         <span className="flex items-end justify-center pb-px">{opChar}</span>
         <div className="min-w-0 flex justify-end">
-          <label htmlFor={`${baseId}-b`} className="sr-only">Operando B</label>
+          <label htmlFor={`${baseId}-b`} className="sr-only">
+            Operando B ({n} bits)
+          </label>
           <input
             id={`${baseId}-b`}
             type="text" inputMode="numeric" pattern="[01]*"
             autoComplete="off" spellCheck={false}
-            maxLength={n} placeholder={"0".repeat(n)} aria-label="Operando B"
+            maxLength={n} placeholder={"0".repeat(n)} aria-label={`Operando B (${n} bits)`}
             value={bInput.value}
             onChange={(e) => bInput.onChange(sanitizeBinary(e.target.value, n))}
             style={{ width: `${n}ch` }}
@@ -88,20 +97,26 @@ export function OperationColumn({
         <span className="pointer-events-none select-none opacity-0">.</span>
         <div className={`min-w-0 flex justify-end border-t border-zinc-700 pt-1 dark:border-zinc-300 ${resultRingClass}`}>
           <div className="inline-flex items-baseline">
-            {carryOut === true && (
+            {showPrependedCarry && (
               <span className="font-mono text-sm tracking-normal font-semibold text-red-500 dark:text-red-400">
                 1
               </span>
             )}
-            <label htmlFor={`${baseId}-result`} className="sr-only">Resultado</label>
+            <label htmlFor={`${baseId}-result`} className="sr-only">
+              Resultado ({n} bits; opcional 1 carry MSB en el mismo campo)
+            </label>
             <input
               id={`${baseId}-result`}
               type="text" inputMode="numeric" pattern="[01]*"
               autoComplete="off" spellCheck={false}
-              maxLength={n} placeholder={"0".repeat(n)} aria-label="Resultado"
+              maxLength={resultSlots} placeholder={"0".repeat(n)} aria-label={`Resultado (${n} bits)`}
               value={resultInput.value}
-              onChange={(e) => resultInput.onChange(sanitizeBinary(e.target.value, n))}
-              style={{ width: `${n}ch` }}
+              onChange={(e) =>
+                resultInput.onChange(
+                  sanitizeBinary(e.target.value, resultSlots),
+                )
+              }
+              style={{ width: `${resultSlots}ch` }}
               className={bitsInputClass}
             />
           </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useId } from "react";
+import type { BitWidth } from "@/lib/alu/types";
 import { columnTitleClass, operationGridClass } from "./operationGridClasses";
 
 type EditableField = {
@@ -14,7 +15,7 @@ type Props = {
   negBInput: EditableField;
   resultInput: EditableField;
   carryOut: boolean | null;
-  n: number;
+  n: BitWidth;
 };
 
 function sanitizeBinary(raw: string, maxLen: number): string {
@@ -30,8 +31,18 @@ function ringClass(v: boolean | null | undefined): string {
 const bitsInputClass =
   "block bg-transparent py-0 text-right font-mono text-sm tracking-normal tabular-nums text-zinc-900 outline-none ring-0 placeholder:text-zinc-400 focus-visible:underline dark:text-zinc-100 dark:placeholder:text-zinc-600";
 
-export function SubtractionAddColumn({ aInput, negBInput, resultInput, carryOut, n }: Props) {
+export function SubtractionAddColumn({
+  aInput,
+  negBInput,
+  resultInput,
+  carryOut,
+  n,
+}: Props) {
   const baseId = useId();
+  const resultSlots = n + 1;
+  const resultCleanLen = resultInput.value.replace(/[^01]/g, "").length;
+  const showPrependedCarry =
+    carryOut === true && resultCleanLen <= n;
 
   return (
     <div className="flex flex-col gap-2">
@@ -74,18 +85,27 @@ export function SubtractionAddColumn({ aInput, negBInput, resultInput, carryOut,
         <span className="pointer-events-none select-none opacity-0">.</span>
         <div className={`min-w-0 flex justify-end border-t border-zinc-700 pt-1 dark:border-zinc-300 ${ringClass(resultInput.validation)}`}>
           <div className="inline-flex items-baseline">
-            {carryOut === true && (
-              <span className="font-mono text-sm tracking-normal font-semibold text-red-500 dark:text-red-400">1</span>
+            {showPrependedCarry && (
+              <span className="font-mono text-sm tracking-normal font-semibold text-red-500 dark:text-red-400">
+                1
+              </span>
             )}
-            <label htmlFor={`${baseId}-result`} className="sr-only">Resultado ({n} bits)</label>
+            <label htmlFor={`${baseId}-result`} className="sr-only">
+              Resultado ({n} bits; opcional carry MSB)
+            </label>
             <input
               id={`${baseId}-result`}
               type="text" inputMode="numeric" pattern="[01]*"
               autoComplete="off" spellCheck={false}
-              maxLength={n} placeholder={"0".repeat(n)}
+              maxLength={resultSlots}
+              placeholder={"0".repeat(n)}
               value={resultInput.value}
-              onChange={(e) => resultInput.onChange(sanitizeBinary(e.target.value, n))}
-              style={{ width: `${n}ch` }}
+              onChange={(e) =>
+                resultInput.onChange(
+                  sanitizeBinary(e.target.value, resultSlots),
+                )
+              }
+              style={{ width: `${resultSlots}ch` }}
               className={bitsInputClass}
             />
           </div>

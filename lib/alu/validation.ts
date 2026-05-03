@@ -6,7 +6,12 @@ import type {
   InterpretationAnswer,
   WorkbenchSnapshot,
 } from "./types";
-import { normalizeBinary, toNaturalValue, toSignedValue } from "./binary";
+import {
+  normalizeBinary,
+  normalizeBinaryResultOptionalCarry,
+  toNaturalValue,
+  toSignedValue,
+} from "./binary";
 import { computeArithmetic } from "./arithmetic";
 import { deriveFlags } from "./flags";
 import { compareBlock } from "./comparison";
@@ -106,7 +111,10 @@ export function validateAnswers(
 
   let normalizedResult: string;
   try {
-    normalizedResult = normalizeBinary(answers.resultBits, n);
+    normalizedResult = normalizeBinaryResultOptionalCarry(
+      answers.resultBits,
+      n,
+    );
   } catch {
     normalizedResult = "";
   }
