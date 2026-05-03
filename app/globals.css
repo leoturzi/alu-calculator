@@ -23,6 +23,11 @@ body {
   font-family: var(--font-sans);
 }
 
+/* Prevent iOS auto-zoom on input focus (triggered when font-size < 16px) */
+input, select, textarea {
+  font-size: 16px;
+}
+
 .font-mono {
   font-family: var(--font-mono), ui-monospace, monospace;
 }
