@@ -51,7 +51,7 @@ export function OperationWorkbench({
   const carryOut = computed?.snapshot.carryOut ?? null;
 
   return (
-    <div className="flex flex-col gap-y-8 sm:flex-row sm:flex-wrap sm:items-start sm:gap-x-10 sm:gap-y-10 md:gap-x-12 lg:gap-x-14">
+    <div className="flex flex-col gap-y-4 sm:flex-row sm:flex-wrap sm:items-start sm:gap-x-10 sm:gap-y-10 md:gap-x-12 lg:gap-x-14">
       {/* Original binary column */}
       <div className="shrink-0">
         <OperationColumn
