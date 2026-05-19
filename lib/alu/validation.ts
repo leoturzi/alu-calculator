@@ -52,7 +52,7 @@ export function deriveAluState(
   op: Operation,
 ): DerivedAluState {
   const arith = computeArithmetic(aBits, bBits, n, op);
-  const flags = deriveFlags(arith.resultBits, arith);
+  const flags = deriveFlags(arith.resultBits, arith, op);
   const comparisons = compareBlock(aBits, bBits, n);
   const snapshot: WorkbenchSnapshot = {
     n,

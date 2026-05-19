@@ -13,7 +13,7 @@ const FLAG_DISPLAY: Record<keyof FlagSet, string> = {
 const FLAG_HINTS: Record<keyof FlagSet, string> = {
   Z: "Zero — vale 1 cuando todos los bits del resultado son 0.",
   N: "Signo — vale 1 cuando el MSB del resultado es 1 (negativo en C2).",
-  C: "Carry — igual al cout del sumador; es el bit extra a la izquierda del resultado.",
+  C: "Carry — cout del sumador para suma; ~cout para resta. En resta: C=1 ⟺ hay préstamo (A<B); C=0 ⟺ no hay préstamo (A≥B).",
   V: "oVerflow — vale 1 cuando hay desbordamiento en complemento a 2.",
 };
 
