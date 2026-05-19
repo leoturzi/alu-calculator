@@ -19,7 +19,6 @@ type Props = {
   aInput: InputConfig;
   bInput: InputConfig;
   resultInput: ResultInputConfig;
-  carryOut?: boolean | null;
 };
 
 function sanitizeBinary(raw: string, maxLen: number): string {
@@ -37,13 +36,9 @@ export function OperationColumn({
   aInput,
   bInput,
   resultInput,
-  carryOut,
 }: Props) {
   const opChar = operation === "add" ? "+" : "−";
   const resultSlots = n + 1;
-  const resultCleanLen = resultInput.value.replace(/[^01]/g, "").length;
-  const showPrependedCarry =
-    carryOut === true && resultCleanLen <= n;
   const baseId = useId();
 
   const resultRingClass = resultInput.validation === true
@@ -97,11 +92,6 @@ export function OperationColumn({
         <span className="pointer-events-none select-none opacity-0">.</span>
         <div className={`min-w-0 flex justify-end border-t border-zinc-700 pt-1 dark:border-zinc-300 ${resultRingClass}`}>
           <div className="inline-flex items-baseline">
-            {showPrependedCarry && (
-              <span className="font-mono text-sm tracking-normal font-semibold text-red-500 dark:text-red-400">
-                1
-              </span>
-            )}
             <label htmlFor={`${baseId}-result`} className="sr-only">
               Resultado ({n} bits; opcional 1 carry MSB en el mismo campo)
             </label>

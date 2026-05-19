@@ -141,7 +141,7 @@ export default function AluCalculator() {
     if (!computed) return;
     const { snapshot, flags, comparisons, naturalValid, signedValid } =
       computed;
-    setResultIn(snapshot.resultBits);
+    setResultIn((snapshot.carryOut ? "1" : "") + snapshot.resultBits);
     setNegBIn(snapshot.negBBits ?? "");
     setNatAIn(String(toNaturalValue(snapshot.aBits)));
     setNatBIn(String(toNaturalValue(snapshot.bBits)));
@@ -291,18 +291,20 @@ export default function AluCalculator() {
         />
       </section>
 
-      {/* Comparison */}
-      <section className="flex flex-col gap-2">
-        <SectionLabel>Comparación</SectionLabel>
-        <ComparisonBlockView
-          value={cmpIn}
-          onChange={(next) => {
-            setCmpIn(next);
-            setValidation(null);
-          }}
-          validation={cmpValidation}
-        />
-      </section>
+      {/* Comparison — only meaningful for subtraction */}
+      {op === "sub" && (
+        <section className="flex flex-col gap-2">
+          <SectionLabel>Comparación</SectionLabel>
+          <ComparisonBlockView
+            value={cmpIn}
+            onChange={(next) => {
+              setCmpIn(next);
+              setValidation(null);
+            }}
+            validation={cmpValidation}
+          />
+        </section>
+      )}
 
       {/* Interpretation */}
       <section className="flex flex-col gap-2">

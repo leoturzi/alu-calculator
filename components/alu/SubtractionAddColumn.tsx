@@ -14,7 +14,6 @@ type Props = {
   aInput: EditableField;
   negBInput: EditableField;
   resultInput: EditableField;
-  carryOut: boolean | null;
   n: BitWidth;
 };
 
@@ -35,14 +34,10 @@ export function SubtractionAddColumn({
   aInput,
   negBInput,
   resultInput,
-  carryOut,
   n,
 }: Props) {
   const baseId = useId();
   const resultSlots = n + 1;
-  const resultCleanLen = resultInput.value.replace(/[^01]/g, "").length;
-  const showPrependedCarry =
-    carryOut === true && resultCleanLen <= n;
 
   return (
     <div className="flex flex-col gap-2">
@@ -85,11 +80,6 @@ export function SubtractionAddColumn({
         <span className="pointer-events-none select-none opacity-0">.</span>
         <div className={`min-w-0 flex justify-end border-t border-zinc-700 pt-1 dark:border-zinc-300 ${ringClass(resultInput.validation)}`}>
           <div className="inline-flex items-baseline">
-            {showPrependedCarry && (
-              <span className="font-mono text-sm tracking-normal font-semibold text-red-500 dark:text-red-400">
-                1
-              </span>
-            )}
             <label htmlFor={`${baseId}-result`} className="sr-only">
               Resultado ({n} bits; opcional carry MSB)
             </label>
