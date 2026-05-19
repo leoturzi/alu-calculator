@@ -88,10 +88,6 @@ export default function AluCalculator() {
     [aBits, bBits, n, op],
   );
 
-  // revealed computed state — only set after CALCULAR; drives workbench display
-  const [revealedComputed, setRevealedComputed] =
-    useState<DerivedAluState | null>(null);
-
   // validation coloring — null until VALIDAR is clicked
   const [validation, setValidation] = useState<Record<
     string,
@@ -113,7 +109,6 @@ export default function AluCalculator() {
     setCmpIn({ ...emptyCmp });
     setInterpIn({ ...emptyInterp });
     setValidation(null);
-    setRevealedComputed(null);
   }
 
   function handleChangeN(newN: BitWidth) {
@@ -157,7 +152,6 @@ export default function AluCalculator() {
       sigValid: signedValid,
       sigFlag: "V",
     });
-    setRevealedComputed(computed);
     setValidation(null);
   }
 
@@ -177,7 +171,6 @@ export default function AluCalculator() {
       interp: interpIn,
     });
     setValidation(results);
-    setRevealedComputed(computed);
   }
 
   // ─── validation per section ───────────────────────────────────────────────
@@ -232,8 +225,8 @@ export default function AluCalculator() {
           operation={op}
           aBits={aBits}
           bBits={bBits}
-          onChangeA={(v) => { setABits(v); clearAnswers(); setRevealedComputed(null); setValidation(null); }}
-          onChangeB={(v) => { setBBits(v); clearAnswers(); setRevealedComputed(null); setValidation(null); }}
+          onChangeA={(v) => { setABits(v); clearAnswers(); }}
+          onChangeB={(v) => { setBBits(v); clearAnswers(); }}
           resultInput={{
             value: resultIn,
             onChange: (v) => { setResultIn(v); setValidation(null); },
@@ -274,7 +267,6 @@ export default function AluCalculator() {
             onChange: (v) => { setSigResultIn(v); setValidation(null); },
             validation: validation?.["sig_result"] ?? null,
           }}
-          computed={revealedComputed}
         />
       </section>
 

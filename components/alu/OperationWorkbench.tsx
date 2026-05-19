@@ -1,7 +1,6 @@
 "use client";
 
 import type { BitWidth, Operation } from "@/lib/alu/types";
-import type { DerivedAluState } from "@/lib/alu/validation";
 import { OperationColumn } from "./OperationColumn";
 import { SubtractionAddColumn } from "./SubtractionAddColumn";
 import { DecimalOperationColumn } from "./DecimalOperationColumn";
@@ -27,8 +26,6 @@ type Props = {
   sigAInput: EditableField;
   sigBInput: EditableField;
   sigResultInput: EditableField;
-  /** Revealed computed state — drives carry display */
-  computed: DerivedAluState | null;
 };
 
 export function OperationWorkbench({
@@ -46,7 +43,6 @@ export function OperationWorkbench({
   sigAInput,
   sigBInput,
   sigResultInput,
-  computed,
 }: Props) {
   return (
     <div className="flex flex-col gap-y-4 sm:flex-row sm:flex-wrap sm:items-start sm:gap-x-10 sm:gap-y-10 md:gap-x-12 lg:gap-x-14">
